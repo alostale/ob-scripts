@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ ! -d "modules/" ]; then
+  echo 'Not in openbravo workspace'
+  exit 1
+fi
+ 
+for dir in `ls "modules/"`
+do
+  if [ -d "modules/$dir/web/$dir" ]; then
+    if [ "$(ls -A WebContent/web/$dir)" ]; then
+      echo 'Copying contents of' $dir
+      cp -rf WebContent/web/$dir/* modules/$dir/web/$dir/
+    else
+      echo 'Empty' WebContent/web/$dir/ 'directory'
+    fi
+  fi
+done
