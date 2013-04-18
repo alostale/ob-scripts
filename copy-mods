@@ -1,5 +1,8 @@
 #!/bin/bash
 
+MODULESKINPATH="org.openbravo.userinterface.smartclient/openbravo/skins/Default/"
+SKINPATH="WebContent/web/org.openbravo.userinterface.smartclient/openbravo/skins/Default/"
+
 if [ ! -d "modules/" ]; then
   echo 'Not in openbravo workspace'
   exit 1
@@ -7,12 +10,34 @@ fi
  
 for dir in `ls "modules/"`
 do
+  # ignore some modules
+  if [ $dir == "org.openbravo.userinterface.smartclient" ]; then
+    continue
+  fi
+  if [ $dir == "org.openbravo.userinterface.smartclient.dev" ]; then
+    continue
+  fi
+  if [ $dir == "org.openbravo.userinterface.skin.250to300Comp" ]; then
+    continue
+  fi
+  
+  # for each module's web dir
   if [ -d "modules/$dir/web/$dir" ]; then
-    if [ "$(ls -A WebContent/web/$dir)" ]; then
-      echo 'Copying contents of' $dir
-      cp -ruf WebContent/web/$dir/* modules/$dir/web/$dir/
+  
+    # copy the code
+    if [ -n "diff -Nrq WebContent/web/$dir modules/$dir/web/$dir" ] && [ -e WebContent/web/$dir ] && [ "$(ls -A WebContent/web/$dir)" ]; then
+      # echo 'Copying contents of code dir ' $dir
+      # diff -Nrq WebContent/web/$dir modules/$dir/web/$dir
+      cp -ruvf WebContent/web/$dir/* modules/$dir/web/$dir/
     else
       echo 'Empty' WebContent/web/$dir/ 'directory'
+    fi
+    
+    # copy the styling
+    if [ -n "diff -Nrq WebContent/web/$dir modules/$dir/web/$dir" ] && [ -e "$SKINPATH$dir" ] && [ "$(ls -A $SKINPATH$dir)" ]; then
+      # echo 'Copying contents of styling dir ' $SKINPATH$dir
+      # diff -Nrq $SKINPATH$dir modules/$dir/web/$MODULESKINPATH$dir
+      cp -ruvf $SKINPATH$dir/* modules/$dir/web/$MODULESKINPATH$dir/
     fi
   fi
 done
