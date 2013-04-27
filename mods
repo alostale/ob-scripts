@@ -1,0 +1,28 @@
+#!/bin/sh
+
+cmd=""
+
+if [ -z "$1" ]; then
+  echo "default command 'pull -u'" 
+  cmd="pull -u"
+else
+  cmd="$1"
+fi
+
+DIR=$(basename $(pwd))
+
+if [ "$DIR" != "modules" ]
+then
+	echo "error: mods must be used inside the modules directory"
+	exit 1
+fi
+
+for i in $(ls -1); do
+	if [ -e "$i/.hg/hgrc" ]
+	then
+		echo ">>> $i" 
+		cd $i
+		hg $cmd 
+		cd ..
+	fi
+done
