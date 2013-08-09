@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+
+var fs = require('fs'),
+  argv = require('optimist')
+         .usage('Initializes development Openbravo instance')
+         .demand('db')
+         .alias('db', 'd')
+         .describe('db', 'database name').argv,
+  red = '\033[31m',
+  reset = '\033[0m',
+  Init,
+  templates = [
+    'config/Openbravo.properties',
+    'config/log4j.lcf',
+    'config/Format.xml',
+    '.settings/org.eclipse.wst.common.component',
+    '.classpath'
+  ];
+
+Init = {
+  checkOBWorkspace: function () {
+    return fs.existsSync('modules') && fs.existsSync('config');
+  },
+
+  copyTemplates: function (templates) {
+    var t, template, replacements;
+
+    for (t = 0; t < templates.length; t++) {
+      template = templates[t];
+      if (fs.existsSync(template + '.template') && !fs.existsSync(template)) {
+        Init.cp(templates[t] + '.template', templates[t]);
+        console.log('  Generated', templates[t]);
+
+        replacements = null;
+        if (template === 'config/log4j.lcf') {
+          replacements = [{
+            what: 'INFO, R',
+            replaceWith: 'INFO, R, C'
+          }, {
+            what: 'log4j.category.reloadXml=ERROR',
+            replaceWith: 'log4j.category.reloadXml=DEBUG'
+          }];
+        } else if (template === 'config/Openbravo.properties') {
+          replacements = [{
+            what: 'deploy.mode=class',
+            replaceWith: 'deploy.mode=none'
+          }, {
+            what: 'safe.mode=true',
+            replaceWith: 'safe.mode=false'
+          }, {
+            what: 'minimizeJSandCSS=yes',
+            replaceWith: 'minimizeJSandCSS=no'
+          }, {
+            what: 'source.path=/opt/openbravo',
+            replaceWith: 'source.path=' + fs.realpathSync('.')
+          }];
+          if (argv.db) {
+            replacements.push({
+              what: 'bbdd.sid=openbravo',
+              replaceWith: 'bbdd.sid=' + argv.db
+            });
+          }
+        }
+
+        Init.replace(template, replacements);
+      }
+    }
+  },
+
+  cp: function (o, d) {
+    fs.createReadStream(o).pipe(fs.createWriteStream(d));
+  },
+
+  replace: function (file, replacements) {
+    if (!replacements) {
+      return;
+    }
+
+    fs.readFile(file, 'utf8', function (err, data) {
+      var r;
+
+      if (err) {
+        return console.log(err);
+      }
+      var result = data;
+
+      for (r = 0; r < replacements.length; r++) {
+        result = result.replace(replacements[r].what, replacements[r].replaceWith);
+      }
+
+      fs.writeFile(file, result, 'utf8', function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+    });
+  }
+};
+
+if (!Init.checkOBWorkspace()) {
+  console.error(red, 'Not in Openbravo directory!', reset);
+  return;
+}
+
+Init.copyTemplates(templates);
