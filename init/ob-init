@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 var fs = require('fs'),
-  argv = require('optimist')
+  xml2js = require('xml2json'),
+  pd = require('pretty-data').pd,
+  optimist = require('optimist')
          .usage('Initializes development Openbravo instance')
-         .demand('db')
          .alias('db', 'd')
-         .describe('db', 'database name').argv,
+         .alias('help', 'h')
+         .describe('db', 'database name')
+         .describe('help', 'displays this help'),
+  argv = optimist.argv,
   red = '\033[31m',
   reset = '\033[0m',
   Init,
@@ -94,8 +98,46 @@ Init = {
         }
       });
     });
+  },
+
+  fixClassPath: function() {
+    var files = fs.readdirSync('modules'), f, src, cp,existsInCp, modified = false;
+
+    cp = JSON.parse(xml2js.toJson(fs.readFileSync('.classpath')));
+
+    for (i=0;i < files.length;i++) {
+      f = 'modules/'+files[i];
+      if (fs.statSync(f).isDirectory()){
+        src = f+'/src';
+         if (fs.existsSync(src)) {
+            existsInCp = cp.classpath.classpathentry.filter(function(c){
+              return c.path === src;
+            }).length > 0;
+            if (!existsInCp) {
+              modified = true;
+              cp.classpath.classpathentry.push({
+                kind: 'src',
+                path: src
+              });
+              console.log('  Adding', src, 'to classpath');
+            }
+         } 
+      }
+    }
+    if (modified){
+        fs.writeFile('.classpath', pd.xml(xml2js.toXml(cp)), 'utf8', function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+    }
   }
 };
+
+if (argv.help) {
+  optimist.showHelp();
+  return;
+}
 
 if (!Init.checkOBWorkspace()) {
   console.error(red, 'Not in Openbravo directory!', reset);
@@ -103,3 +145,5 @@ if (!Init.checkOBWorkspace()) {
 }
 
 Init.copyTemplates(templates);
+
+Init.fixClassPath();
