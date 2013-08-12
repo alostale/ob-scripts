@@ -4,11 +4,11 @@ var fs = require('fs'),
   xml2js = require('xml2json'),
   pd = require('pretty-data').pd,
   optimist = require('optimist')
-         .usage('Initializes development Openbravo instance')
-         .alias('db', 'd')
-         .alias('help', 'h')
-         .describe('db', 'database name')
-         .describe('help', 'displays this help'),
+    .usage('Initializes development Openbravo instance')
+    .alias('db', 'd')
+    .alias('help', 'h')
+    .describe('db', 'database name')
+    .describe('help', 'displays this help'),
   argv = optimist.argv,
   red = '\033[31m',
   reset = '\033[0m',
@@ -69,7 +69,7 @@ Init = {
         }
 
         Init.replace(template, replacements);
-      } else if (template==='.classpath'){
+      } else if (template === '.classpath') {
         eventEmiter.emit('classpathDone');
       }
     }
@@ -78,7 +78,7 @@ Init = {
   cp: function (o, d) {
     var dest = fs.createWriteStream(d);
     var r = fs.createReadStream(o).pipe(dest);
-    dest.on('finish', function() {
+    dest.on('finish', function () {
       if (d === '.classpath') {
         eventEmiter.emit('classpathDone');
       }
@@ -106,33 +106,34 @@ Init = {
     });
   },
 
-  fixClassPath: function() {
-    var files = fs.readdirSync('modules'), f, src, cp,existsInCp, modified = false;
+  fixClassPath: function () {
+    var files = fs.readdirSync('modules'),
+      f, src, cp, existsInCp, modified = false;
 
     cp = JSON.parse(xml2js.toJson(fs.readFileSync('.classpath')));
 
-    for (i=0;i < files.length;i++) {
-      f = 'modules/'+files[i];
-      if (fs.statSync(f).isDirectory()){
-        src = f+'/src';
-         if (fs.existsSync(src)) {
-            existsInCp = cp.classpath.classpathentry.filter(function(c){
-              return c.path === src;
-            }).length > 0;
-            if (!existsInCp) {
-              modified = true;
-              cp.classpath.classpathentry.push({
-                kind: 'src',
-                path: src
-              });
-              console.log('  Adding', src, 'to classpath');
-            }
-         } 
+    for (i = 0; i < files.length; i++) {
+      f = 'modules/' + files[i];
+      if (fs.statSync(f).isDirectory()) {
+        src = f + '/src';
+        if (fs.existsSync(src)) {
+          existsInCp = cp.classpath.classpathentry.filter(function (c) {
+            return c.path === src;
+          }).length > 0;
+          if (!existsInCp) {
+            modified = true;
+            cp.classpath.classpathentry.push({
+              kind: 'src',
+              path: src
+            });
+            console.log('  Adding', src, 'to classpath');
+          }
+        }
       }
     }
 
-    if (modified){
-      fs.writeFileSync('.classpath', pd.xml(xml2js.toXml(cp))+'\n', 'utf8');
+    if (modified) {
+      fs.writeFileSync('.classpath', pd.xml(xml2js.toXml(cp)) + '\n', 'utf8');
     }
   }
 };
@@ -149,11 +150,8 @@ if (!Init.checkOBWorkspace()) {
 
 eventEmiter = new events.EventEmitter();
 
-eventEmiter.on('classpathDone', function() {
+eventEmiter.on('classpathDone', function () {
   Init.fixClassPath();
 });
 
 Init.copyTemplates(templates);
-
-
-
