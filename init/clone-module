@@ -1,0 +1,178 @@
+#!/usr/bin/env node
+
+var fs = require('fs'),
+    readline = require('readline'),
+    stream = require('stream'),
+    events = require('events'),
+    eventEmiter,
+    red = '\033[31m',
+    orange = '\033[33m',
+    green = '\033[32m'
+    reset = '\033[0m',
+    cache = {},
+    exec = require('child_process').exec,
+    xml2js = require('xml2json'),
+    cacheFileName = process.env['HOME']+'/.ob-init/modules',
+    whiteList = {
+    	'0':	                            'org.openbravo',
+        'A918E3331C404B889D69AA9BFAFB23AC':	'org.openbravo.advpaymentmngt',
+        'C70732EA90A14EC0916078B85CC33D2D':	'org.openbravo.base.weld',
+        '9BA0836A3CD74EE4AB48753A47211BCC':	'org.openbravo.client.application',
+        'D393BE6F22BB44B7B728259B34FC795A':	'org.openbravo.client.htmlwidget',
+        '4B828F4D03264080AA1D2057B13F613C':	'org.openbravo.client.kernel',
+        '2758CD25B2704AF6BBAD10365FC82C06':	'org.openbravo.client.myob',
+        '0A060B2AF1974E8EAA8DB61388E9AECC':	'org.openbravo.client.querylist',
+        'FF8080812D842086012D844F3CC0003E':	'org.openbravo.client.widgets',
+        '2A5EE903D7974AC298C0504FBC4501A7':	'org.openbravo.financial.paymentreport',
+        '3A3A943684D64DEF9EC39F588A656848':	'org.openbravo.reports.ordersawaitingdelivery',
+        'A44B9BA75C354D8FB2E3F7D6EB6BFDC4':	'org.openbravo.service.datasource',
+        'FF8080813129ADA401312CA1222A0005':	'org.openbravo.service.integration.google',
+        'FF8080813141B198013141B86DD70003':	'org.openbravo.service.integration.openid',
+        'F8D1B3ECB3474E8DA5C216473C840DF1':	'org.openbravo.service.json',
+        '5EB4F15C80684ACA904756BDC12ADBE5':	'org.openbravo.userinterface.selector',
+        '96998CBC42744B3DBEE28AC8095C9335':	'org.openbravo.userinterface.skin.250to300Comp',
+        'EC356CEE3D46416CA1EBEEB9AB82EDB9':	'org.openbravo.userinterface.smartclient',
+        '883B5872CA0548F9AF2BBBE7D2DDFA61':	'org.openbravo.v3.datasets',
+        '7E48CDD73B7E493A8BED4F7253E7C989':	'org.openbravo.v3.framework',
+        '0138E7A89B5E4DC3932462252801FFBC':	'org.openbravo.v3'
+    };
+
+var log = {
+  error: function(t) {
+  	console.log(red, 'ERROR', reset, '\t', t);
+  },
+
+  warn: function(t) {
+  	console.log(orange, 'WARN', reset, '\t', t);
+  },
+
+  ok: function(t) {
+  	console.log(green, 'OK', reset, '\t', t);
+  }
+};
+
+function readCache() {
+  var file;
+  console.log('\t Reading cache of modules')
+  var instream = fs.createReadStream(cacheFileName, {autoClose:true});
+  var rl = readline.createInterface({
+      input: instream,
+      terminal: false
+  });
+  
+  rl.on('line', function(line) {
+      var lineObj = JSON.parse(line);
+      if (lineObj.id !== '0' && !cache[lineObj.id]) {
+      cache[lineObj.id] = {module:lineObj.module, repo:lineObj.repo};
+  }
+  
+
+      //Do your stuff ...
+      //Then write to outstream
+      //rl.write(cubestuff);
+  });
+  
+  instream.on('close', function(){
+  	log.ok('Cache is ready')
+  	//console.log(cache);
+  	eventEmiter.emit('cacheReady');
+  });
+}
+
+function cloneModule(mod) {
+	// mod can be an ID or a java pacakge
+  var module, m, url;
+
+  if (whiteList[mod]) {
+  	return;
+  }
+  
+  if (cache[mod]) {
+  	module = cache[mod];
+  } else {
+  	for (m in cache) {
+  		if (cache.hasOwnProperty(m) && cache[m].module === mod) {
+  			module = cache[m];
+  			break;
+  		}
+  	}
+  }
+
+  if (!module) {
+  	log.warn('Not found module ' + mod);
+  	return;
+  }
+
+  if (fs.existsSync(module.module)) {
+  	log.warn(module.module+' already exists, not cloning it');
+  	cloneDependencies(module);
+  } else {
+  
+    log.ok('Found module to clone '+module.module+' from repo '+module.repo);
+    
+  
+    url = 'https://code.openbravo.com/erp/'+module.repo+'/'+module.module;
+    console.log('\t Starting clone',url)
+  
+    exec('hg clone '+url, function(error, stdout, stderr){
+    		var lines, line, i;
+  	  if (stdout) {
+  	  	lines = stdout.split('\n');
+  	  	for (i = 0; i<lines.length;i++) {
+  	  		console.log('\t   ',lines[i]);  
+  	  	}
+  	    
+  	  } 
+  	  if (stderr){
+  	  	log.error(stderr);
+  	  }
+  
+      if (!error) {
+      	log.ok(module.module+' module cloned from '+module.repo);
+      	cloneDependencies(module);
+      }
+    });
+  }
+}
+
+function cloneDependencies (module){
+	var deps, dep, i, depsFileName = module.module+'/src-db/database/sourcedata/AD_MODULE_DEPENDENCY.xml';
+	console.log('\t Checking dependencies',module.module);
+	if (!fs.existsSync(depsFileName)) {
+		log.warn('No dependencies file found for '+module.module);
+		return;
+	}
+	deps = JSON.parse(xml2js.toJson(fs.readFileSync(depsFileName))).data['AD_MODULE_DEPENDENCY'];
+    if (!deps.length) {
+    	deps = [deps];
+    }
+    for (i=0;i<deps.length;i++) {
+    	dep = deps[i]['AD_DEPENDENT_MODULE_ID'];
+    	if (dep != '0') {
+    		cloneModule(dep);
+    	}
+    	
+    }
+}
+
+if (!fs.existsSync(cacheFileName)) {
+	log.error('Missing modules cache file!');
+  
+  console.log('   Execute first fetch-modules');
+  return;
+} 
+
+if (process.argv.length < 3 || typeof process.argv[2] !== 'string') {
+  log.error('Missing module to clone!');
+  return;
+}
+
+
+
+eventEmiter = new events.EventEmitter();
+readCache();
+eventEmiter.on('cacheReady', function () {
+	cloneModule(process.argv[2]);
+});
+
+ 

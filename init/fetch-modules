@@ -1,0 +1,164 @@
+#!/usr/bin/env node
+
+var http = require('https'),
+  fs = require('fs'),
+  read = require('read'),
+  cacheFileDir = process.env['HOME']+'/.ob-init',
+  cacheFileName = cacheFileDir+'/modules',
+  file;
+
+var processRepo = function (repo, credentials, file) {
+  console.log('processing repo', repo);
+  var options = {
+    host: 'code.openbravo.com',
+    port: 443,
+    method: 'GET',
+    path: '/erp/' + repo,
+    headers: {
+      'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
+        credentials
+        .password).toString('base64')
+    }
+  }
+  var mods = [];
+  var req = http.request(options, function (res) {
+    console.log('STATUS: ' + res.statusCode);
+    console.log('HEADERS: ' + JSON.stringify(res.headers));
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      var lines = chunk.split('\n'),
+        i, line, module;
+      for (i = 0; i < lines.length; i++) {
+        line = lines[i];
+        if (line.indexOf('<a class="list"') === -1) {
+          continue;
+        }
+        module = line.substring(line.indexOf('href') + 6).replace('/erp/' +
+          repo + '/', '').replace('/">', '');
+        mods.push(module);
+      }
+      //console.log('BODY: ' + chunk);
+    });
+  });
+
+  var getModuleId = function (moduleInfo) {
+    console.log('get id', moduleInfo);
+
+    var opts = {
+      host: 'code.openbravo.com',
+      port: 443,
+      method: 'GET',
+      path: '/erp/' + repo + '/' + moduleInfo.module + '/file/' + moduleInfo.changeset + '/src-db/database/sourcedata/AD_MODULE.xml',
+      headers: {
+        'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
+          credentials.password).toString('base64')
+      }
+    };
+
+    console.log('r', opts.path)
+
+    var req = http.request(opts, function (res) {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+        var lines = chunk.split('\n'),
+          i, line, id;
+        for (i = 0; i < lines.length; i++) {
+          line = lines[i];
+          if (line.indexOf('--&gt;&lt;AD_MODULE&gt;') !== -1) {
+            id = line.substr(line.indexOf('&lt;!--') + 7).replace(
+              '--&gt;&lt;AD_MODULE&gt;', '')
+            console.log(moduleInfo.module, id);
+            fs.write(file, JSON.stringify({
+              module: moduleInfo.module,
+              id: id,
+              repo: repo
+            }) + '\n');
+          }
+        }
+      });
+    });
+    req.end();
+  }
+
+  var readModule = function (module) {
+    console.log('fetching info for module', module);
+    var opts = {
+      host: 'code.openbravo.com',
+      port: 443,
+      method: 'GET',
+      path: '/erp/' + repo + '/' + module,
+      headers: {
+        'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
+          credentials.password).toString('base64')
+      }
+    };
+
+    var req = http.request(opts, function (res) {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+        var lines = chunk.split('\n'),
+          i, line, ver;
+        for (i = 0; i < lines.length; i++) {
+          line = lines[i];
+          if (line.indexOf('<a href="/erp/' + repo + '/' + module +
+              '/file/') !== -
+            1 && line.indexOf('files') !== -1 && line.indexOf('gz') !== -
+            1) {
+            ver = line.substr(line.indexOf('/file/') + 6);
+            ver = ver.substr(0, ver.indexOf('">'));
+            getModuleId({
+              module: module,
+              changeset: ver
+            });
+          }
+          //console.log(line)
+        }
+      });
+    });
+    req.end();
+  }
+
+  req.on('error', function (e) {
+    console.log('problem with request: ' + e.message, e);
+  });
+
+  req.on('response', function (r) {
+    console.log('response');
+    r.on('end', function () {
+      var i;
+      for (i = 0; i < mods.length; i++) {
+        readModule(mods[i]);
+      }
+    })
+  });
+
+  req.end();
+}
+
+
+if (!fs.existsSync(cacheFileName)) {
+  console.log('Regenerating modules file...');
+} else {
+  console.log('Generating modules file...')
+}
+
+if (!fs.existsSync(cacheFileDir)){
+  fs.mkdirSync(cacheFileDir);
+}
+
+  read({
+    prompt: 'User: '
+  }, function (er, u) {
+    var credentials = {};
+    credentials.user = u;
+    read({
+      prompt: 'Password: ',
+      silent: true
+    }, function (er, p) {
+    	var file = fs.openSync(cacheFileName, 'w');
+      credentials.password = p;
+      processRepo('mods', credentials, file);
+      processRepo('pmods', credentials, file);
+    });
+  });
+ 
