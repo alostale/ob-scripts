@@ -11,7 +11,8 @@ fi
 for dir in `ls "modules/"`
 do
   # ignore some modules
-  if [ $dir == "org.openbravo.userinterface.smartclient" ]; then
+  if [ $dir == "org.openbravo.userinterface.smartclient" ] && [ ! -d "modules/org.openbravo.userinterface.smartclient.dev" ]; then
+    echo 'no wat'
     continue
   fi
   if [ $dir == "org.openbravo.userinterface.smartclient.dev" ]; then
@@ -23,6 +24,11 @@ do
   
   # for each module's web dir
   if [ -d "modules/$dir/web/$dir" ]; then
+
+    if [ $dir == "org.openbravo.userinterface.smartclient" ]; then
+      cp -ruvf WebContent/web/$dir/isomorphic/client/* modules/org.openbravo.userinterface.smartclient.dev/web/$dir/isomorphic/client
+      continue
+    fi
   
     # copy the code
     if [ -n "diff -Nrq WebContent/web/$dir modules/$dir/web/$dir" ] && [ -e WebContent/web/$dir ] && [ "$(ls -A WebContent/web/$dir)" ]; then
