@@ -61,15 +61,16 @@ function readCache() {
   });
   
   rl.on('line', function(line) {
-      var lineObj = JSON.parse(line);
-      if (lineObj.id !== '0' && !cache[lineObj.id]) {
-      cache[lineObj.id] = {module:lineObj.module, repo:lineObj.repo};
-  }
-  
+    var lineObj = JSON.parse(line);
+    if (whiteList[lineObj.id]) {
+      // do nothing
+      return;
+    }
 
-      //Do your stuff ...
-      //Then write to outstream
-      //rl.write(cubestuff);
+    if (!cache[lineObj.id] || cache[lineObj.id].module > lineObj.module) {
+      // if same id, prefer org.opnbravo.mymod over org.opnbravo.mymod-project1
+      cache[lineObj.id] = {module:lineObj.module, repo:lineObj.repo};
+    }
   });
   
   instream.on('close', function(){
