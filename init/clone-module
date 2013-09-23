@@ -180,5 +180,8 @@ if (process.argv.length < 3 || typeof process.argv[2] !== 'string') {
 eventEmiter = new events.EventEmitter();
 readCache();
 eventEmiter.on('cacheReady', function () {
-  cloneModule(process.argv[2]);
+  var i;
+  for (i=2; i<process.argv.length; i++) {
+    cloneModule(process.argv[i]);
+  }
 });
