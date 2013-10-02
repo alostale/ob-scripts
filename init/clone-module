@@ -85,6 +85,42 @@ function readCache() {
   });
 }
 
+function guessModuleByName(mod) {
+  var tokens = mod.toLowerCase().split(' '),
+    candidates = [],
+    m, check, t, matches, msg = '';
+
+  for (m in cache) {
+    if (cache.hasOwnProperty(m)) {
+      check = cache[m];
+      matches = true;
+      for (t = 0; t < tokens.length; t++) {
+        if (check.module.indexOf(tokens[t]) === -1) {
+          matches = false;
+        }
+      }
+      if (matches) {
+        candidates.push(check);
+      }
+    }
+  }
+
+  if (candidates.length === 1) {
+    // just one candidate: use it
+    return candidates[0];
+  }
+
+  if (candidates.length > 1) {
+    for (t = 0; t < candidates.length; t++) {
+      msg += msg ? ', ' : '';
+      msg += candidates[t].module;
+    }
+
+    log.warn('More than one candidates matching ' + mod + ': [' + msg + ']');
+  }
+  return null;
+}
+
 function cloneModule(mod) {
   // mod can be an ID or a java pacakge
   var module, m, url;
@@ -102,6 +138,10 @@ function cloneModule(mod) {
         break;
       }
     }
+  }
+
+  if (!module) {
+    module = guessModuleByName(mod);
   }
 
   if (!module) {
@@ -181,7 +221,7 @@ eventEmiter = new events.EventEmitter();
 readCache();
 eventEmiter.on('cacheReady', function () {
   var i;
-  for (i=2; i<process.argv.length; i++) {
+  for (i = 2; i < process.argv.length; i++) {
     cloneModule(process.argv[i]);
   }
 });
