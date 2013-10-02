@@ -123,14 +123,13 @@ function guessModuleByName(mod) {
     }
   }
 
-  if (candidates.length > 1) {
-    for (t = 0; t < candidates.length; t++) {
-      msg += msg ? ', ' : '';
-      msg += candidates[t].module;
-    }
-
-    log.warn('More than one candidates matching ' + mod + ': [' + msg + ']');
+  for (t = 0; t < candidates.length; t++) {
+    msg += msg ? ', ' : '';
+    msg += candidates[t].module;
   }
+
+  log.warn('More than one candidates matching ' + mod + ': [' + msg + ']');
+
   return null;
 }
 
