@@ -88,7 +88,7 @@ function readCache() {
 function guessModuleByName(mod) {
   var tokens = mod.toLowerCase().split(' '),
     candidates = [],
-    m, check, t, matches, msg = '';
+    m, check, t, matches, msg = '', longerPackage,shorterPackage;
 
   for (m in cache) {
     if (cache.hasOwnProperty(m)) {
@@ -108,6 +108,16 @@ function guessModuleByName(mod) {
   if (candidates.length === 1) {
     // just one candidate: use it
     return candidates[0];
+  }
+
+  if (candidates.length === 2){
+  	// check if one of them is translation for the other, if so take the base one
+  	longerPackage = candidates[0].module.length > candidates[1].module.length ? 0:1;
+  	shorterPackage = longerPackage === 1?0:1;
+  	if (candidates[longerPackage].module.indexOf(candidates[shorterPackage].module) === 0 
+  		&& candidates[longerPackage].module.indexOf('.es_ES') - candidates[shorterPackage].module.length === 0) {
+  		return candidates[shorterPackage];
+  	}
   }
 
   if (candidates.length > 1) {
