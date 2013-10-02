@@ -61,6 +61,7 @@ Init = {
             replaceWith: 'source.path=' + fs.realpathSync('.')
           }];
           if (argv.db) {
+            console.log('   DB:', argv.db);
             replacements.push({
               what: 'bbdd.sid=openbravo',
               replaceWith: 'bbdd.sid=' + argv.db
