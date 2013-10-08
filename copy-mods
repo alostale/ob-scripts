@@ -12,7 +12,6 @@ for dir in `ls "modules/"`
 do
   # ignore some modules
   if [ $dir == "org.openbravo.userinterface.smartclient" ] && [ ! -d "modules/org.openbravo.userinterface.smartclient.dev" ]; then
-    echo 'no wat'
     continue
   fi
   if [ $dir == "org.openbravo.userinterface.smartclient.dev" ]; then
