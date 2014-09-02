@@ -20,7 +20,8 @@ var fs = require('fs'),
     'config/log4j.lcf',
     'config/Format.xml',
     '.settings/org.eclipse.wst.common.component',
-    '.classpath'
+    '.classpath',
+    'src-test/.classpath'
   ];
 
 Init = {
