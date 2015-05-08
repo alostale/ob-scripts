@@ -20,23 +20,13 @@ var processRepo = function (repo, credentials, file) {
         .password).toString('base64')
     }
   }
-  var mods = [];
+  var mods = [], repoContent = '';
   var req = http.request(options, function (res) {
     console.log('STATUS: ' + res.statusCode);
     console.log('HEADERS: ' + JSON.stringify(res.headers));
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
-      var lines = chunk.split('\n'),
-        i, line, module;
-      for (i = 0; i < lines.length; i++) {
-        line = lines[i];
-        if (line.indexOf('<a class="list"') === -1) {
-          continue;
-        }
-        module = line.substring(line.indexOf('href') + 6).replace('/erp/' +
-          repo + '/', '').replace('/">', '');
-        mods.push(module);
-      }
+      repoContent += chunk;
       //console.log('BODY: ' + chunk);
     });
   });
@@ -53,14 +43,20 @@ var processRepo = function (repo, credentials, file) {
         'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
           credentials.password).toString('base64')
       }
-    };
+    }, modContent = '';
 
     console.log('r', opts.path)
 
     var req = http.request(opts, function (res) {
       res.setEncoding('utf8');
       res.on('data', function (chunk) {
-        var lines = chunk.split('\n'),
+        modContent += chunk;
+      });
+    });
+    req.on('response', function (r) {
+      console.log('response');
+      r.on('end', function () {
+        var lines = modContent.split('\n'),
           i, line, id;
         for (i = 0; i < lines.length; i++) {
           line = lines[i];
@@ -91,12 +87,18 @@ var processRepo = function (repo, credentials, file) {
         'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
           credentials.password).toString('base64')
       }
-    };
+    }, moduleContent = '';
 
     var req = http.request(opts, function (res) {
       res.setEncoding('utf8');
       res.on('data', function (chunk) {
-        var lines = chunk.split('\n'),
+        moduleContent += chunk;
+      });
+    });
+    req.on('response', function (r) {
+      console.log('response');
+      r.on('end', function () {
+        var lines = moduleContent.split('\n'),
           i, line, ver;
         for (i = 0; i < lines.length; i++) {
           line = lines[i];
@@ -111,7 +113,6 @@ var processRepo = function (repo, credentials, file) {
               changeset: ver
             });
           }
-          //console.log(line)
         }
       });
     });
@@ -125,7 +126,26 @@ var processRepo = function (repo, credentials, file) {
   req.on('response', function (r) {
     console.log('response');
     r.on('end', function () {
-      var i;
+
+      var lines = repoContent.split('\n'),
+        i, line, module;
+
+      fs.writeFileSync(cacheFileDir+'/repo-'+repo+'.html', repoContent, 'utf8');
+
+      for (i = 0; i < lines.length; i++) {
+        line = lines[i];
+        if (line.indexOf('<a class="list"') === -1) {
+          continue;
+        }
+        if (line.indexOf('/">') === -1) {
+          console.warn('Incomplete line, skipping it:',line);
+          continue;
+        }
+        module = line.substring(line.indexOf('href') + 6).replace('/erp/' +
+          repo + '/', '').replace('/">', '');
+        mods.push(module);
+      }
+
       for (i = 0; i < mods.length; i++) {
         readModule(mods[i]);
       }
@@ -161,4 +181,3 @@ if (!fs.existsSync(cacheFileDir)){
       processRepo('pmods', credentials, file);
     });
   });
- 
