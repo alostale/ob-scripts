@@ -1,0 +1,102 @@
+#!/usr/bin/env node
+
+var http = require('https'),
+  fs = require('fs'),
+  read = require('read'),
+  xml2js = require('xml2json'),
+  cacheFileDir = process.env['HOME']+'/.ob-init',
+  cacheFileName = cacheFileDir+'/modules',
+  file;
+
+
+  var processRepo = function (repo, credentials, file) {
+    console.log('processing repo', repo);
+    var options = {
+      host: 'code.openbravo.com',
+      port: 443,
+      method: 'GET',
+      path: '/erp/' + repo,
+      headers: {
+        'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
+          credentials
+          .password).toString('base64')
+      }
+    }
+    var mods = [], body = '';
+    var req = http.request(options, function (res) {
+      console.log('STATUS: ' + res.statusCode);
+      console.log('HEADERS: ' + JSON.stringify(res.headers));
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+        var lines = chunk.split('\n'),
+          i, line, module;
+        for (i = 0; i < lines.length; i++) {
+          line = lines[i];
+          if (line.indexOf('<a class="list"') === -1) {
+            continue;
+          }
+          module = line.substring(line.indexOf('href') + 6).replace('/erp/' +
+            repo + '/', '').replace('/">', '');
+          mods.push(module);
+          console.log(line)
+        }
+        body += chunk;
+        //console.log('BODY: ' + chunk);
+      });
+    });
+
+    req.on('response', function (r) {
+      console.log('response');
+      r.on('end', function () {
+        fs.writeFileSync(cacheFileDir+'/repo-'+repo+'.html', body, 'utf8');
+        console.log('done \n' + body);
+      })
+    });
+
+    req.end();
+  };
+
+var processRepoLocal = function (repoContent, repo) {
+   var lines = repoContent.split('\n'),
+       line, i, modules = [], mod, modified;
+
+
+   for (i = 0; i < lines.length; i++) {
+     line = lines[i].toString();
+
+     if (line.indexOf('<a class="list"') !== -1) {
+       mod = {};
+       mod.package = line.substring(line.indexOf('href') + 6).replace('/erp/' +
+         repo + '/', '').replace('/">', '')
+     } else if (line.indexOf('<td class="age">') !== -1) {
+       modified = new Date(line.substring(line.indexOf('<td class="age">')+16).replace('</td>',''))
+       mod.lastModified = modified ;
+       mod.lastModfiedTimeStamp =  modified.valueOf();
+       modules.push(mod);
+     }
+   }
+
+   console.log(modules);
+
+};
+
+if (false) {
+  read({
+      prompt: 'User: '
+    }, function (er, u) {
+      var credentials = {};
+      credentials.user = u;
+      read({
+        prompt: 'Password: ',
+        silent: true
+      }, function (er, p) {
+      	var file = fs.openSync(cacheFileName, 'w');
+        credentials.password = p;
+        processRepo('mods', credentials, file);
+        processRepo('pmods', credentials, file);
+      });
+    });
+} else {
+  processRepoLocal(fs.readFileSync(cacheFileDir+'/repo-mods.html').toString(), 'mods');
+  processRepoLocal(fs.readFileSync(cacheFileDir+'/repo-pmods.html').toString(), 'pmods');
+}
