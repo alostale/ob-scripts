@@ -124,12 +124,10 @@ function guessModuleByName(mod) {
   }
 
   for (t = 0; t < candidates.length; t++) {
-    msg += msg ? ', ' : '';
-    msg += candidates[t].module;
+    msg += '\n\t\t' + candidates[t].module;
   }
 
-  log.warn('More than one candidates matching ' + mod + ': [' + msg + ']');
-
+  console.log(orange, 'WARN', reset, '\t', 'More than one candidates matching ', red, mod, reset, msg);
   return null;
 }
 
