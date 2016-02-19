@@ -88,7 +88,7 @@ function readCache() {
 function guessModuleByName(mod) {
   var tokens = mod.toLowerCase().split(' '),
     candidates = [],
-    m, check, t, matches, msg = '',
+    m, check, t, matches, msg = '', url,
     longerPackage, shorterPackage;
 
   for (m in cache) {
@@ -124,11 +124,22 @@ function guessModuleByName(mod) {
   }
 
   for (t = 0; t < candidates.length; t++) {
-    msg += '\n\t\t' + candidates[t].module;
+    url = 'https://code.openbravo.com/erp/' + candidates[t].repo + '/' + candidates[t].module;
+    msg += '\n\t   ' + pad(' ',candidates[t].module,70) +  url;
   }
 
   console.log(orange, 'WARN', reset, '\t', 'More than one candidates matching ', red, mod, reset, msg);
   return null;
+}
+
+function pad(pad, str, positions) {
+  if (typeof str === 'undefined')
+    return pad;
+
+  var padding = Array(positions).join(pad)
+
+  //return (padding + str).slice(-padding.length);
+  return (str + padding).substring(0, padding.length)
 }
 
 function cloneModule(mod) {
