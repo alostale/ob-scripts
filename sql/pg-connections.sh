@@ -25,7 +25,7 @@ NUM_CON=$( run_pg_command "select count(*) from pg_stat_activity" )
 echo -ne "\n[$(date)] Open connections $NUM_CON " >> pg_conn.log
 
 if [ $NUM_CON -gt $CON_NUM_THRES ] ; then
-  TIMESTAMP=$(date +"%Y-%M-%d-%H%M%S")
+  TIMESTAMP=$(date +"%Y-%m-%d-%H%M%S")
   echo -n "   ---  saving connection info to ${TIMESTAMP}.csv" >> pg_conn.log
   run_pg_command "copy (select xact_start, query_start, state_change, waiting, state, query from pg_stat_activity) to STDOUT with csv" > ${TIMESTAMP}.csv
 fi
