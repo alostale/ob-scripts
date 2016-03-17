@@ -17,7 +17,7 @@ DBHOST=$(awk -F = '/^bbdd.url/ {print $2}' $OBPROPS | cut -d':' -f3 | sed 's#//#
 
 run_pg_command()
 {
-  PGPASSWORD=$DBPASS psql -d $DBNAME -U $DBUSER -h $DBHOST -t -c "$*" 2>&1 ;
+  PGPASSWORD=$DBPASS psql -d $DBNAME -U $DBUSER -h $DBHOST -p $DBPORT -t -c "$*" 2>&1 ;
 }
 
 NUM_CON=$( run_pg_command "select count(*) from pg_stat_activity" )
