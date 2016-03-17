@@ -1,0 +1,51 @@
+#!/bin/sh
+
+file=$1
+numArgs=$#
+minArgs=1
+
+if [ $numArgs -lt $minArgs ]; then
+  echo "Usage: $(basename $0) FILE [TEXT_TO_FIND]" >&2
+  exit 1
+fi
+
+if [ $numArgs -gt 1 ]; then
+  com="checkText"
+else
+  com="checkFileExists"
+fi
+
+checkFileExists() {
+  [ -f $1 ]
+}
+
+checkText() {
+  echo $1::$2::
+  file=$1
+  shift
+  textToFind=$*
+  echo file $file txt $textToFind
+  grep -q "$textToFind" $file
+}
+
+check() {
+  if  $com $@; then
+    result=good
+  else
+    result=bad
+  fi
+
+  echo $result
+  hg bisect --$result
+}
+
+while :
+do
+  if check $@ | grep -q 'Testing changeset'; then
+    echo
+    hg bisect
+  else
+    hg bisect
+    exit 0
+  fi
+done
