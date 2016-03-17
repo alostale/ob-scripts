@@ -20,7 +20,6 @@ checkFileExists() {
 }
 
 checkText() {
-  echo $1::$2::
   file=$1
   shift
   textToFind=$*
