@@ -3,7 +3,7 @@
 cmd=""
 
 if [ -z "$1" ]; then
-  echo "default command 'pull -u'" 
+  echo "default command 'pull -u'"
   cmd="pull -u"
 else
   cmd="$1"
@@ -20,9 +20,9 @@ fi
 for i in $(ls -1); do
 	if [ -e "$i/.hg/hgrc" ]
 	then
-		echo ">>> $i" 
+		echo ">>> $i"
 		cd $i
-		hg $cmd 
+		hg $cmd
 		cd ..
 	fi
 done
