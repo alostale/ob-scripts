@@ -8,14 +8,15 @@ echo "original: "$dir1
 echo "modified: "$dir2
 echo "regexp  : "$exp
 
-for f in $(find $dir2 -type f); do
+shopt -s globstar
+for f in $dir2/**; do
   fileToCompare="${f/$dir2/''}"
   if [[ $fileToCompare =~ ".hg" ]]; then continue; fi
 
   f1=$dir1/$fileToCompare
   f2=$dir2/$fileToCompare
 
-  if ! [ -e "$f2" ]; then continue; fi
+  if [ -d "$f2" ]; then continue; fi   # do not check directories
 
   if [ -e "$f2" ] && ! [ -e "$f1" ]; then
     # new file
