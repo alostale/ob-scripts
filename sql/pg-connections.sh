@@ -29,5 +29,5 @@ echo -ne "\n[$(date)] Open connections $NUM_CON " >> $LOGFILE
 if [ $NUM_CON -gt $CON_NUM_THRES ] ; then
   TIMESTAMP=$( date +"%Y-%m-%d-%H%M%S" )
   echo -n "   ---  saving connection info to ${TIMESTAMP}.csv" >> $LOGFILE
-  run_pg_command "copy (select xact_start, query_start, state_change, waiting, state, query from pg_stat_activity) to STDOUT with csv" > ${TIMESTAMP}.csv
+  run_pg_command "copy (select xact_start, query_start, state_change, waiting, state, query from pg_stat_activity) to STDOUT with csv header" > ${TIMESTAMP}.csv
 fi
