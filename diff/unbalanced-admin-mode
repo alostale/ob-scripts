@@ -1,0 +1,10 @@
+#!/bin/bash
+
+shopt -s globstar
+for f in **/*.java; do 
+  setAdminCnt=$( grep setAdminMode $f -c )
+  restoreCnt=$( grep restorePreviousMode $f -c )
+  if [ $setAdminCnt -ne $restoreCnt ]; then
+    echo "  setAdmin: $setAdminCnt restore: $restoreCnt  file: $f"
+  fi 
+done
