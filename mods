@@ -18,7 +18,7 @@ then
   echo "warn: mods should be used inside the modules directory"
 fi
 
-for i in $(ls -1); do
+for i in *; do
 	if [ -e "$i/.hg" ]
 	then
 		echo ">>> $i"
