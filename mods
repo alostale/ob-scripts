@@ -18,10 +18,10 @@ if [ "$dir" != "modules" ]; then
 fi
 
 for i in *; do
-	if [ -e "$i/.hg" ]; then
-		echo ">>> $i"
-		cd $i
-		eval "hg $cmd"
-		cd ..
-	fi
+  if [ -e "$i/.hg" ]; then
+    echo ">>> $i"
+    cd $i
+    eval "hg $cmd"
+    cd ..
+  fi
 done
