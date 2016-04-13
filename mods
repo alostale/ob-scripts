@@ -11,16 +11,14 @@ fi
 
 echo "  hg $cmd"
 
-DIR=$(basename $(pwd))
+dir=$(basename $(pwd))
 
-if [ "$DIR" != "modules" ]
-then
+if [ "$dir" != "modules" ]; then
   echo "warn: mods should be used inside the modules directory"
 fi
 
 for i in *; do
-	if [ -e "$i/.hg" ]
-	then
+	if [ -e "$i/.hg" ]; then
 		echo ">>> $i"
 		cd $i
 		eval "hg $cmd"
