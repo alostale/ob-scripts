@@ -17,7 +17,7 @@ then
 fi
 
 for i in $(ls -1); do
-	if [ -e "$i/.hg/hgrc" ]
+	if [ -e "$i/.hg" ]
 	then
 		echo ">>> $i"
 		cd $i
