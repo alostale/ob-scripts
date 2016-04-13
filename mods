@@ -13,7 +13,7 @@ DIR=$(basename $(pwd))
 
 if [ "$DIR" != "modules" ]
 then
-  echo "warn: mods must be used inside the modules directory"
+  echo "warn: mods should be used inside the modules directory"
 fi
 
 for i in $(ls -1); do
