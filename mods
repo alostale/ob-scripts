@@ -3,11 +3,13 @@
 cmd=""
 
 if [ -z "$1" ]; then
-  echo "default command 'pull -u'"
+  echo "default command"
   cmd="pull -u"
 else
-  cmd="$1"
+  cmd=$@
 fi
+
+echo "  hg $cmd"
 
 DIR=$(basename $(pwd))
 
