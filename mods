@@ -23,7 +23,7 @@ for i in $(ls -1); do
 	then
 		echo ">>> $i"
 		cd $i
-		hg $cmd
+		eval "hg $cmd"
 		cd ..
 	fi
 done
