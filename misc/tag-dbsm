@@ -1,0 +1,10 @@
+#!/bin/sh
+
+for rev in $(hg tags | grep PR | awk '{print $1}'); do 
+  dbsmRevId=$( hg cat -r $rev src-db/database/lib/dbsourcemanager.jar | bsdtar -O -xf- rev.id )
+  if [ ! -z $dbsmRevId ]; then
+    echo "hg tag -r $dbsmRevId $rev"
+  else
+    (>&2 echo "No rev.id for $rev")
+  fi
+done
