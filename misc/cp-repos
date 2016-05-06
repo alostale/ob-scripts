@@ -1,0 +1,27 @@
+#!/bin/sh
+
+orig=$(cd $1; pwd)
+dest=$(cd $2; pwd)
+
+if [ -d "$orig/modules" ]; then
+  orig=$orig/modules
+fi
+
+if [ $(basename $orig) != "modules" ]; then
+  echo "error: $orig is not an openbravo instance"
+  exit 1
+fi
+
+if [ $(basename $dest) != "modules" ]; then
+  echo "error: $dest is not an openbravo a modules directory"
+  exit 1
+fi
+
+
+for m in $orig/*; do
+#  echo $m
+  if [ -d "$m/.hg" ]; then
+    echo $(basename $m)
+    cp -r $m $dest
+  fi
+done
