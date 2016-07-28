@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 suites=$(find -name *.java | xargs grep -l @Suite)
 testcases=$(find -name *.java | xargs grep -l @Test)
