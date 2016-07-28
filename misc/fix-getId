@@ -1,0 +1,22 @@
+#!/bin/bash
+
+shopt -s globstar
+for i in **/*.java; do
+  # case (String) DalUtil.getId(obj.getOtherObj())
+  sed -i -E 's/(\(String\) )?DalUtil.getId\(([^\(^\)]*\(\))\)/\2.getId()/g' $i
+
+  # case (String) DalUtil.getId(obj.getOtherObj().getAnotherOne())
+  sed -i -E 's/(\(String\) )?DalUtil.getId\(([^\(^\)]*\(\)[^\(^\)]*\(\))\)/\2.getId()/g' $i
+
+  # case (String) DalUtil.getId(proxy)
+  sed -i -E 's/(\(String\) )?DalUtil.getId\(([^\(^\)]*)\)/\2.getId()/g' $i
+
+  # # case DalUtil.getId(obj.getOtherObj())
+  # sed -i -E 's/DalUtil.getId\((.*\(\))\)/\1.getId()/g' $i
+
+  # # case DalUtil.getId(proxy)
+  # sed -i -E 's/DalUtil.getId\(([^\(^\)]*)\)/\1.getId()/g' $i
+
+ # sed  -i 's/\((String) \)\?DalUtil.getId(\([^)]*)\))/\2.getId()/g' $i
+done
+
