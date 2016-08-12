@@ -1,0 +1,8 @@
+#!/bin/bash
+
+shopt -s globstar; 
+for i in **/src-db/database/model/functions/**/*.xml; do 
+  if ! $(grep -q '<function name=".*" type="NULL">' $i); then
+    echo $i
+  fi
+done
