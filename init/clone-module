@@ -39,15 +39,15 @@ var fs = require('fs'),
 
 var log = {
   error: function (t) {
-    console.log(red, 'ERROR', reset, '\t', t);
+    console.log(red, pad(' ', 'ERROR', 8), reset, t);
   },
 
   warn: function (t) {
-    console.log(orange, 'WARN', reset, '\t', t);
+    console.log(orange, pad(' ', 'WARN', 8), reset, t);
   },
 
   ok: function (t) {
-    console.log(green, 'OK', reset, '\t', t);
+    console.log(green, pad(' ', 'OK', 8), reset, t);
   }
 };
 
@@ -104,6 +104,10 @@ function guessModuleByName(mod) {
         candidates.push(check);
       }
     }
+  }
+
+  if (candidates.length === 0) {
+     return;
   }
 
   if (candidates.length === 1) {
@@ -166,7 +170,7 @@ function cloneModule(mod) {
   }
 
   if (!module) {
-    log.warn('Not found module ' + mod);
+    log.error('Not found module ' + mod);
     return;
   }
 
