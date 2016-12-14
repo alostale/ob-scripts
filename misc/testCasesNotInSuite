@@ -3,11 +3,30 @@
 suites=$(find -name *.java | xargs grep -l @Suite)
 testcases=$(find -name *.java | xargs grep -l @Test)
 
+totalCases=0
+totalNotInSuite=0
+echo "classes not in suite:"
 for i in $testcases; do
+  let totalCases=totalCases+1
   fileName=$(basename $i)
   className=${fileName/.java}
   
   if ! grep -q $className $suites; then
-    echo $className
+  	let totalNotInSuite=totalNotInSuite+1
+    echo "  $className"
   fi
 done
+
+
+echo "----------------"
+echo "suites:"
+totalSuite=0
+for i in $suites; do
+  echo "  $i"
+  let totalSuite=totalSuite+1
+done
+
+echo "----------------"
+echo "num of test cases classes: $totalCases"
+echo "num of not in suite:       $totalNotInSuite"
+echo "num of suites:             $totalSuite"
