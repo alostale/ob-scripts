@@ -1,0 +1,23 @@
+#!/bin/bash
+
+for ws in $*; do
+  echo "Looking for Openbravo.properties in $ws"
+  
+  obProps=$(find $ws -wholename "*/config/Openbravo.properties")
+  
+  echo "Found Openbravo properties: $obProps"
+  
+  dbName=$(awk -F = '/^bbdd.sid/ {print $2}' $obProps)
+  dbUser=$(awk -F = '/^bbdd.systemUser/ {print $2}' $obProps)
+  dbPass=$(awk -F = '/^bbdd.systemPassward/ {print $2}' $obProps)
+  dbPort=$(awk -F = '/^bbdd.url/ {print $2}' $obProps | sed 's/.*:\([0-9]*\)/\1/')
+  
+  echo "dopping database $dbName"
+  
+  echo "drop database $dbName;"
+  PGPASSWORD=$dbPass psql -U $dbUser -h localhost -p $dbPort -t -c "drop database $dbName;" 2>&1 ;
+  
+
+  echo "deleting ws $ws"
+  rm -rf $ws
+done
