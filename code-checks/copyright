@@ -2,8 +2,9 @@
 
 dir1=$1
 dir2=$2
+year=$(date +"%Y")
 
-c="Copyright.*2017"
+c="Copyright.*$year"
 srcDb="src-db/database/sourcedata|src-db/database/model/tables"
 
 echo "original: "$dir1
