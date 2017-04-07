@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo 'new DalConnectionProvider() with flush'
+diff-dir-text $1 $2 '>.*new DalConnectionProvider()' java
+
+echo
+echo '*****************'
+echo 'js with "'
+diff-dir-text $1 $2 '>.*"' js
