@@ -3,13 +3,16 @@
 dir1=$1
 dir2=$2
 exp=$3
+filetype="*$4"
 
 echo "original: "$dir1
 echo "modified: "$dir2
 echo "regexp  : "$exp
+echo "filetype: "$filetype
+
 
 shopt -s globstar
-for f in $dir2/**; do
+for f in $dir2/**/$filetype; do
   fileToCompare="${f/$dir2/''}"
   if [[ $fileToCompare =~ ".hg" ]]; then continue; fi
 
