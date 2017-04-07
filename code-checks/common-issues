@@ -3,7 +3,7 @@
 path=$(dirname "$(readlink -f "$0")")
 
 echo 'new DalConnectionProvider() with flush'
-$path/diff-dir-text $1 $2 '>.*new DalConnectionProvider()' java
+$path/diff-dir-text $1 $2 '>.*new DalConnectionProvider\(\)' java
 
 echo
 echo '*****************'
