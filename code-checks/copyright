@@ -1,0 +1,37 @@
+#!/bin/bash
+
+dir1=$1
+dir2=$2
+
+c="Copyright.*2017"
+srcDb="src-db/database/sourcedata|src-db/database/model/tables"
+
+echo "original: "$dir1
+echo "modified: "$dir2
+
+shopt -s globstar
+for f in $dir2/**; do
+  fileToCompare="${f/$dir2/''}"
+  if [[ $fileToCompare =~ ".hg" ]]; then continue; fi
+
+  if [[ $fileToCompare =~ $srcDb ]]; then continue; fi
+
+  f1=$dir1/$fileToCompare
+  f2=$dir2/$fileToCompare
+
+  if [ -d "$f2" ]; then continue; fi   # do not check directories
+
+  if [ -e "$f2" ] && ! [ -e "$f1" ]; then
+    # new file
+    comparison=$(cat "$f2")
+  else
+    if cmp -s "$f1" "$f2"; then continue; fi
+    comparison=$(cat "$f2")
+  fi
+
+  
+  if ! [[ $comparison =~ $c ]]; then
+    echo "  "$fileToCompare
+  fi
+
+done
