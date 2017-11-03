@@ -4,10 +4,10 @@
 do $$
 declare
   -- add here admin roles not to be modified
-  admin_roles varchar[] := {
+  admin_roles varchar[] := '{
     "0", 
-    "42D0EEB1C66F497A90DD526DC597E6F0" -- F&B Group Admin 
-   };
+    "42D0EEB1C66F497A90DD526DC597E6F0"
+   }';
 
   insecured_process numeric;
 begin
