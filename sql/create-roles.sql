@@ -31,3 +31,5 @@ ins_ad_role_orgaccess as (
 )
 select *
   from ins_role;
+
+-- delete from ad_role where name like '%-gen-%';
