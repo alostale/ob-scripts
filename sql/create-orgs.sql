@@ -54,4 +54,5 @@ begin
 end$$;
 
 -- delete from ad_treenode where ad_org_id in (select ad_org_id from ad_org where name like 'gen-%');
+-- delete from ad_preference where visibleat_org_id in (select ad_org_id from ad_org where name like 'gen-%');
 -- delete from ad_org where name like 'gen-%';
