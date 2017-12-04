@@ -1,0 +1,3 @@
+#!/bin/sh
+
+find -type f -name $1 | xargs hg blame | view -
