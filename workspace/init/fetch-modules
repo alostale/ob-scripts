@@ -27,7 +27,6 @@ var processRepo = function (repo, credentials, file) {
     res.setEncoding('utf8');
     res.on('data', function (chunk) {
       repoContent += chunk;
-      //console.log('BODY: ' + chunk);
     });
   });
 
@@ -45,7 +44,7 @@ var processRepo = function (repo, credentials, file) {
       }
     }, modContent = '';
 
-    console.log('r', opts.path)
+    // console.log('r:', opts)
 
     var req = http.request(opts, function (res) {
       res.setEncoding('utf8');
@@ -54,65 +53,26 @@ var processRepo = function (repo, credentials, file) {
       });
     });
     req.on('response', function (r) {
-      console.log('response');
       r.on('end', function () {
         var lines = modContent.split('\n'),
-          i, line, id;
+          i, line, id, found;
         for (i = 0; i < lines.length; i++) {
           line = lines[i];
           if (line.indexOf('--&gt;&lt;AD_MODULE&gt;') !== -1) {
+            found = true;
             id = line.substr(line.indexOf('&lt;!--') + 7).replace(
-              '--&gt;&lt;AD_MODULE&gt;', '')
-            console.log(moduleInfo.module, id);
+              '--&gt;&lt;AD_MODULE&gt;</span>', '')
+            console.log('  ',moduleInfo.module, id);
             fs.write(file, JSON.stringify({
               module: moduleInfo.module,
               id: id,
               repo: repo
             }) + '\n');
+            return;
           }
         }
-      });
-    });
-    req.end();
-  }
-
-  var readModule = function (module) {
-    console.log('fetching info for module', module);
-    var opts = {
-      host: 'code.openbravo.com',
-      port: 443,
-      method: 'GET',
-      path: '/erp/' + repo + '/' + module,
-      headers: {
-        'Authorization': 'Basic ' + new Buffer(credentials.user + ':' +
-          credentials.password).toString('base64')
-      }
-    }, moduleContent = '';
-
-    var req = http.request(opts, function (res) {
-      res.setEncoding('utf8');
-      res.on('data', function (chunk) {
-        moduleContent += chunk;
-      });
-    });
-    req.on('response', function (r) {
-      console.log('response');
-      r.on('end', function () {
-        var lines = moduleContent.split('\n'),
-          i, line, ver;
-        for (i = 0; i < lines.length; i++) {
-          line = lines[i];
-          if (line.indexOf('<a href="/erp/' + repo + '/' + module +
-              '/file/') !== -
-            1 && line.indexOf('files') !== -1 && line.indexOf('gz') !== -
-            1) {
-            ver = line.substr(line.indexOf('/file/') + 6);
-            ver = ver.substr(0, ver.indexOf('">'));
-            getModuleId({
-              module: module,
-              changeset: ver
-            });
-          }
+        if (!found) {
+          console.log('  not found id for ', moduleInfo.module)
         }
       });
     });
@@ -124,7 +84,7 @@ var processRepo = function (repo, credentials, file) {
   });
 
   req.on('response', function (r) {
-    console.log('response');
+   // console.log('completed response for', repo);
     r.on('end', function () {
 
       var lines = repoContent.split('\n'),
@@ -147,14 +107,18 @@ var processRepo = function (repo, credentials, file) {
       }
 
       for (i = 0; i < mods.length; i++) {
-        readModule(mods[i]);
+        getModuleId(
+          {
+            module: mods[i],
+            changeset: 'tip'
+          }
+        );
       }
     })
   });
 
   req.end();
 }
-
 
 if (!fs.existsSync(cacheFileName)) {
   console.log('Regenerating modules file...');
