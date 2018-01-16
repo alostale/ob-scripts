@@ -33,7 +33,8 @@ BEGIN {
 }
 
 END {
-  for (i in cnt) {
-    print i, cnt[i], uploadedBytes[i]/cnt[i], time[i]/(cnt[i]*1000) | "sort" 
+  for (url in cnt) {
+    reqs = cnt[url]
+    print url, reqs, uploadedBytes[reqs]/reqs, time[reqs]/(reqs*1000) | "sort" 
   }
 }
