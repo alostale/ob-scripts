@@ -5,8 +5,10 @@
 #  * avg uploaded bytes per request
 #  * avg response time per requst
 #
-# assuming access log formatted as:
-# "%h %l %u %t %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %>s %b %I %D \"%{Referer}i\" \"%{User-agent}i\""
+# assuming:
+#  * access log formatted as:
+#     "%h %l %u %t %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %>s %b %I %D \"%{Referer}i\" \"%{User-agent}i\""
+#  * access log daily rotated
 # 
 # usage: req-per-minute ssl_access.log
 
