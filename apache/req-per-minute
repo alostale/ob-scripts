@@ -35,6 +35,6 @@ BEGIN {
 END {
   for (timestamp in cnt) {
     reqs = cnt[timestamp]
-    print url, reqs, uploadedBytes[timestamp]/reqs, time[timestamp]/(reqs*1000) | "sort" 
+    print timestamp, reqs, uploadedBytes[timestamp]/reqs, time[timestamp]/(reqs*1000) | "sort" 
   }
 }
