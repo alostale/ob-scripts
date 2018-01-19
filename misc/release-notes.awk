@@ -18,9 +18,8 @@ BEGIN {
   desc = cleanField(fields[7])
   reporter = cleanField(fields[9])
   assigned = cleanField(fields[11])
-  closedBy = cleanField(fields[13])
 
-  print id, desc, reporter, assigned, closedBy
+  print id, desc, reporter, assigned
 }
 
 function cleanField(field) {
