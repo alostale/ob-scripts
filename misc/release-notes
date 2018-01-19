@@ -1,11 +1,2 @@
 #!/bin/sh
-while read p; do
-  if [[ $p =~ ^\<tr\> ]]; then
-    line=$(sed 's/<a[^>]*>\([0-9]*\)<\/a>/\1/g' <<<  $p | sed 's/<tr>//' | sed 's/<\/tr>//' | sed 's/<\/td><td>/","/g' | sed 's/<td>/"/' | sed 's/<\/td>/"/' | sed '/^$/d' )
-    echo $line
-  elif [[ $p =~ \<h2\>.*\<\/h2\> ]]; then
-    echo
-    echo $(sed 's/.*h2>\(.*\)<\/h2>/\1/' <<< $p)
-    echo '"Id", "Desc", "Reporter", "Assigned to", "To be closed by", "Status", "Id"'   
-  fi
-done < <(curl https://issues.openbravo.com/changelog_main.html)
+curl -s https://issues.openbravo.com/changelog_main.html | awk -f release-notes.awk
