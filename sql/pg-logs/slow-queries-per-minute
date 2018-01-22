@@ -1,0 +1,41 @@
+#! /usr/bin/awk -f
+
+
+
+BEGIN {
+  OFS="\t"
+  print "Timestamp", "# queries", "avg time", "1-5s", "5-10s", "10-60s", ">60s"
+} 
+
+/duration/ {
+  # grouping time per minute
+  timestamp=gensub(/([0-9]*:[0-9]*):[0-9]*/, "\\1", "g", $2) 
+  time=$12
+
+  if (time<5000)
+    q_1_5[timestamp] += 1
+  else if (time < 10000)
+    q_5_10[timestamp] += 1
+  else if (time < 60000)
+    q_10_60[timestamp] += 1
+  else
+    q_60[timestamp] += 1
+
+  cnt[timestamp]+=1; 
+  duration[timestamp]+=time; 
+
+
+ # print $2, timestamp, time
+}
+
+END {
+  for (timestamp in cnt) {
+    queries = cnt[timestamp]
+    r_1_5 = (q_1_5[timestamp])?q_1_5[timestamp]:0
+    r_5_10 = (q_5_10[timestamp])?q_5_10[timestamp]:0
+    r_10_60  = (q_10_60[timestamp])?q_10_60[timestamp]:0
+    r_60 = (q_60[timestamp])?q_60[timestamp]:0
+
+    print timestamp, queries, duration[timestamp]/queries, r_1_5, r_5_10, r_10_60, r_60 | "sort" 
+  }
+}
