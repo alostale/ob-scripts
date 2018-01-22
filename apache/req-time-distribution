@@ -1,0 +1,24 @@
+#! /usr/bin/awk -f
+
+BEGIN {
+  OFS="\t"
+  print "resp range", "#requests"
+} 
+
+{
+  respTimeMs=$14/1000
+
+  r["1. 0-10"]+= (respTimeMs<=10)?1:0
+  r["2. 10-100"]+= (respTimeMs>10 && respTimeMs<=100)?1:0
+  r["3. 100-1000"]+= (respTimeMs>100 && respTimeMs<=1000)?1:0
+  r["4. 1000+"]+= (respTimeMs>1000)?1:0
+
+ # print timestamp, url, $13, $14
+}
+
+END {
+  for (range in r) {
+    print range "ms", r[range] | "sort -n"
+  }
+}
+
