@@ -4,8 +4,8 @@
   reqSize=$13
   respTime=$14
 
- # normalize url -> remove all query string (after ?)
-  url=gensub(/(.*)\?.*/,"\\1", "g", $9)
+ # normalize url -> remove all query string (after ? or %)
+  url=gensub(/([^?%]*).*/,"\\1", "g", $9)
 
   cnt[url]+=1; 
   uploadedBytes[url]+=reqSize; 
