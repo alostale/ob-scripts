@@ -1,0 +1,32 @@
+#! /usr/bin/awk -f
+
+BEGIN {
+  OFS="\t"
+  print "request size", "#requests"
+} 
+
+{
+  requestSizeKB=$13/1024
+
+  r["1. 0-1"]+= (requestSizeKB<=1)?1:0
+  r["2. 1-10"]+= (requestSizeKB>1 && requestSizeKB<=10)?1:0
+  r["3. 10-100"]+= (requestSizeKB>10 && requestSizeKB<=100)?1:0
+  r["4. 100-1024"]+= (requestSizeKB>100 && requestSizeKB<=1024)?1:0
+  r["5. 1024+"]+= (requestSizeKB>1024)?1:0
+
+  totalSize += requestSizeKB
+
+ # print timestamp, url, $13, $14
+}
+
+END {
+  for (range in r) {
+    print range "KB", r[range]
+  }
+
+  print "\nTOTALS"
+  print "  count:        " NR 
+  print "  request size: " totalSize/1024 " MB"
+  print "  avg size:     " totalSize/NR " KB"
+}
+
