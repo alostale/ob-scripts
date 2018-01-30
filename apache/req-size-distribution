@@ -2,7 +2,6 @@
 
 BEGIN {
   OFS="\t"
-  print "request size", "#requests"
 } 
 
 {
@@ -21,12 +20,14 @@ BEGIN {
 
 END {
   for (range in r) {
-    print range "KB", r[range]
+    print range "KB", r[range] | "sort -n"
   }
 
   print "\nTOTALS"
   print "  count:        " NR 
   print "  request size: " totalSize/1024 " MB"
   print "  avg size:     " totalSize/NR " KB"
+  print ""
+  print "request size", "#requests"
 }
 
