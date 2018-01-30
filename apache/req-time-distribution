@@ -2,7 +2,6 @@
 
 BEGIN {
   OFS="\t"
-  print "resp range", "#requests"
 } 
 
 {
@@ -12,6 +11,7 @@ BEGIN {
   r["2. 10-100"]+= (respTimeMs>10 && respTimeMs<=100)?1:0
   r["3. 100-1000"]+= (respTimeMs>100 && respTimeMs<=1000)?1:0
   r["4. 1000+"]+= (respTimeMs>1000)?1:0
+  totalTime += respTimeMs
 
  # print timestamp, url, $13, $14
 }
@@ -20,5 +20,12 @@ END {
   for (range in r) {
     print range "ms", r[range] | "sort -n"
   }
+
+  print "TOTALS"
+  print "  count:    " NR 
+  print "  time:     " totalTime/60000 " min"
+  print "  avg time: " totalTime/NR " ms"
+  print ""
+  print "request size", "#requests"
 }
 
