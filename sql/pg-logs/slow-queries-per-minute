@@ -9,7 +9,7 @@ BEGIN {
 
 /duration/ {
   # grouping time per minute
-  timestamp=gensub(/([0-9]*:[0-9]*):[0-9]*/, "\\1", "g", $2) 
+  timestamp=gensub(/^([0-9]{4}(-[0-9]{2}){2} ([0-9]{2}:[0-9]{2})):[0-9]*/, "\\1", "g", $1" "$2) 
   time=$12
 
   if (time<5000)
