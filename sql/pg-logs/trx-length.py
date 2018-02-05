@@ -10,7 +10,12 @@ ms_pattern = re.compile(' (\d*).?\d* ms ')
 all_trx = {}
 
 def read_log():
-	for line in sys.stdin:
+	if len(sys.argv)>1:
+		f = open(sys.argv[1])
+	else:
+		f = sys.stdin
+
+	for line in f:
 		add_trx_and_time(line)
 
 def add_trx_and_time(l):
