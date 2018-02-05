@@ -11,14 +11,12 @@ all_trx = {}
 
 def read_log():
 	for line in sys.stdin:
-		if has_timestamp_and_trx(line):
-			add_trx_and_time(line)
-
-def has_timestamp_and_trx(l):
-	return re.search(timestamp_pattern, l)
+		add_trx_and_time(line)
 
 def add_trx_and_time(l):
 	m = re.search(timestamp_pattern, l)
+	if not m: return
+
 	trx_id = m.group(5)
 	
 	if trx_id == '0' or trx_id.endswith('/0'): return
