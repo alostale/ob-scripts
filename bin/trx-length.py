@@ -1,1 +1,1 @@
-../sql/pg-logs/trx-length.py
+../logs/pg/trx-length.py

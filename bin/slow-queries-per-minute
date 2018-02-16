@@ -1,1 +1,1 @@
-../sql/pg-logs/slow-queries-per-minute
+../logs/pg/slow-queries-per-minute
