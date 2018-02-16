@@ -1,0 +1,25 @@
+#! /usr/bin/awk -f
+
+
+
+BEGIN {
+  OFS="\t"
+  print "Timestamp", "# queries", "avg time", "1-5s", "5-10s", "10-60s", ">60s"
+} 
+
+/duration/ {
+  # grouping time per minute
+ # timestamp=gensub(/([0-9]*:[0-9]*):[0-9]*/, "\\1", "g", $2) 
+
+  timestamp=$1
+  time=$12
+
+  totaltime[timestamp] += time
+  cnt[timestamp] += 1
+}
+
+END {
+  for (day in cnt) {
+    print day, cnt[day], totaltime[day]/60000, totaltime[day]/(cnt[day]*1000)
+  }
+}

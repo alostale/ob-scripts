@@ -1,0 +1,20 @@
+#! /usr/bin/awk -f
+
+/temporary file/ {
+    tmp_size = gensub(/.*size ([0-9]*)/,"\\1","g",$0)	
+}
+
+/(CONTEXT|STATEMENT)/ {
+	query = gensub(/.*(CONTEXT|STATEMENT): (.*)/, "\\2","g",$0)
+	query=gensub(/'[^']*'/,"'?'", "g", query)
+	size[query] += tmp_size
+	tmp_size = 0
+}
+
+END {
+  OFS="\t"
+  print "tmp files (MB)", "query"
+  for (q in size) {
+    print size[q]/(1024*1024), q | "sort -rn"
+  }	
+}

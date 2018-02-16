@@ -1,0 +1,27 @@
+#! /usr/bin/awk -f
+
+
+
+BEGIN {
+  OFS="\t"
+  print "Timestamp", "# queries", "avg time", "1-5s", "5-10s", "10-60s", ">60s"
+} 
+
+/duration/ {
+  # grouping time per minute
+ # timestamp=gensub(/([0-9]*:[0-9]*):[0-9]*/, "\\1", "g", $2) 
+
+  timestamp=$1
+  time=$12
+  if (time>60000) {
+    normalized_query=gensub(/.*:(.*)/,"\\1","g",$0)
+    normalized_query=gensub(/'[^']*'/,"'?'", "g", normalized_query)
+    cnt[timestamp" "normalized_query] += 1
+  }
+}
+
+END {
+  for (query in cnt) {
+    print cnt[query], query | "sort -k2,2 -k1,1rn"
+  }
+}
