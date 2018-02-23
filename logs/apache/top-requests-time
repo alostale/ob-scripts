@@ -5,10 +5,12 @@
   respTime=$14
 
  # normalize url -> remove all query string (after ? or %)
-  url=gensub(/([^?%]*).*/,"\\1", "g", $9)
+  url = $9
   if (url ~ /org.openbravo.client.kernel/) {
     url = "[AH] " gensub(/.*_action=(.*)/,"\\1", "g", url)
   } 
+
+  url=gensub(/([^?%]*).*/,"\\1", "g", url)
   
   cnt[url]+=1; 
   uploadedBytes[url]+=reqSize; 
