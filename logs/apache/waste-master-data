@@ -1,0 +1,18 @@
+#! /usr/bin/awk -f
+
+/posterminal.master.*timeout/ {
+  timeout = gensub(/.*timeout%22:([0-9]*)%7D.*/,"\\1", "g" ,$0)+0
+  t=$14/1000
+  if (t > timeout) {
+    url=gensub(/([^?%]*).*/, "\\1", "g", $9) 
+    waste[url] += ( t - timeout)
+  }
+} 
+
+END {
+  for (u in waste) {
+    total += waste[u]
+    print u,waste[u]/1000" sec"
+  } 
+  print "TOTAL WASTE (sec):",total/1000
+}
