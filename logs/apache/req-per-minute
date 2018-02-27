@@ -21,6 +21,7 @@ BEGIN {
   # grouping time per minute
   timestamp=gensub(/.*:([0-9]*:[0-9]*):[0-9]*/, "\\1", "g", $4) 
   reqSize=$13
+  respSize=$12
   respTime=$14
 
  # no needed here!
@@ -30,6 +31,7 @@ BEGIN {
   cnt[timestamp]+=1; 
   uploadedBytes[timestamp]+=reqSize; 
   time[timestamp]+=respTime
+  resp[timestamp]+=respSize
 
  # print timestamp, url, $13, $14
 }
@@ -37,6 +39,6 @@ BEGIN {
 END {
   for (timestamp in cnt) {
     reqs = cnt[timestamp]
-    print timestamp, reqs, uploadedBytes[timestamp]/reqs, time[timestamp]/(reqs*1000) | "sort" 
+    print timestamp, reqs, uploadedBytes[timestamp]/reqs, time[timestamp]/(reqs*1000),  resp[timestamp]/reqs| "sort" 
   }
 }
