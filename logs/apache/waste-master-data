@@ -5,14 +5,16 @@
   t=$14/1000
   if (t > timeout) {
     url=gensub(/([^?%]*).*/, "\\1", "g", $9) 
-    waste[url] += ( t - timeout)
+    waste[url] += (t - timeout)
+    cnt[url] += 1
+    total_req += 1
   }
 } 
 
 END {
   for (u in waste) {
     total += waste[u]
-    print u,waste[u]/1000" sec"
+    print cnt[u], u, waste[u]/1000" sec"
   } 
-  print "TOTAL WASTE (sec):",total/1000
+  print "TOTAL WASTE", total/1000" sec - ", total_req" requests"
 }
