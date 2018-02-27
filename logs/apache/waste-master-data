@@ -13,9 +13,9 @@
 END {
   for (u in waste) {
     total += waste[u]
-    print cnt[u], u, waste[u]/1000" sec"
+    print cnt[u]"/"total_url[u], u, waste[u]/1000" sec"
   } 
-  print "TOTAL WASTE", total/1000" sec - ", total_req" requests"
+  print "TOTAL WASTE", total/1000" sec - ", total_slow_req"/"total_req" requests"
 }
 
 function process(timeout) {
@@ -24,6 +24,8 @@ function process(timeout) {
     url=gensub(/([^?%]*).*/, "\\1", "g", $9) 
     waste[url] += (t - timeout)
     cnt[url] += 1
-    total_req += 1
+    total_slow_req += 1
   }
+  total_req += 1
+  total_url[url] += 1
 }
