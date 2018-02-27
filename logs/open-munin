@@ -1,0 +1,76 @@
+#! /usr/bin/python3
+import sys
+import re
+from datetime import datetime
+import webbrowser
+
+date_format = '%Y-%m-%d:%H:%M'
+if len(sys.argv) != 4: 
+  sys.exit(
+    ''' 3 arguments required:
+        - server name (ie. us-west-1/clientname.cloud.openbravo.com or just clientname)
+        - start time ({})
+        - end time ({})'''.format(date_format, date_format))
+
+start = int(datetime.strptime(sys.argv[2], date_format).timestamp())
+end = int(datetime.strptime(sys.argv[3], date_format).timestamp())
+server = (sys.argv[1] if '/' in sys.argv[1] else 'us-west-1/{}'.format(sys.argv[1])) + '.cloud.openbravo.com'
+url='https://mon.cloud.openbravo.com/munin/static/dynazoom.html?plugin_name={}/{}&start_epoch={}&stop_epoch={}&size_x=800&size_y=400'
+
+plugins = [
+       'apache_accesses'
+     , 'apache_processes'
+     , 'apache_volume'
+  #  , 'diskstats_iops/index'
+  #  , 'diskstats_latency/index'
+  #  , 'df'
+  #  , 'df_inode'
+  #  , 'diskstats_throughput/index'
+  #  , 'diskstats_utilization/index'
+  #  , 'jstat_shu_classloading_time'
+  #  , 'jstat_shu_classloading_loaded'
+  #  , 'jstat_shu_cltime'
+  #  , 'jstat_shu_classloading_unloaded'
+     , 'jstat__gccount'
+  #  , 'jstat__gccount_shu'
+     , 'jstat__gctime'
+  #  , 'jstat__gctime_shu'
+     , 'jstat__heap'
+  #  , 'if_eth0'
+  #  , 'fw_packets'
+     , 'munin_ob_active_logins_openbravo'
+  #  , 'postgres_autovacuum'
+  #  , 'postgres_bgwriter'
+  #  , 'postgres_cache_openbravo'
+  #  , 'postgres_checkpoints'
+     , 'postgres_connections_openbravo'
+     , 'postgres_size_openbravo'
+     , 'postgres_locks_openbravo'
+     , 'postgres_querylength_openbravo'
+  #  , 'postgres_scans_openbravo'
+  #  , 'postgres_xlog'
+     , 'postgres_transactions_openbravo'
+  #  , 'postgres_tuples_openbravo'
+  #  , 'cpu_by_process'
+  #  , 'forks'
+  #  , 'threads'
+  #  , 'processes'
+  #  , 'vmstat'
+  #  , 'entropy'
+     , 'cpu'
+  #  , 'open_files'
+  #  , 'shu_open_files_tomcat'
+  #  , 'open_inodes'
+  #  , 'load'
+  #  , 'memory'
+  #  , 'swap'
+     , 'tomcat_access'
+     , 'tomcat_threads'
+     , 'tomcat_volume'
+]
+
+for plugin in plugins:
+  actual_url = url.format(server, plugin, start, end)
+  print('openinig {}'.format(actual_url))
+  webbrowser.open(actual_url)
+
