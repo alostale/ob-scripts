@@ -2,14 +2,13 @@
 
 /posterminal.master.*timeout/ {
   timeout = gensub(/.*timeout%22:([0-9]*)%7D.*/,"\\1", "g" ,$0)+0
-  t=$14/1000
-  if (t > timeout) {
-    url=gensub(/([^?%]*).*/, "\\1", "g", $9) 
-    waste[url] += (t - timeout)
-    cnt[url] += 1
-    total_req += 1
-  }
+  process(timeout)
 } 
+
+/org.openbravo.mobile.core.utils.LogClientLoader/ {
+  timeout = 20000 # old pos versions hardcode it to 20s
+  process(timeout)
+}
 
 END {
   for (u in waste) {
@@ -17,4 +16,14 @@ END {
     print cnt[u], u, waste[u]/1000" sec"
   } 
   print "TOTAL WASTE", total/1000" sec - ", total_req" requests"
+}
+
+function process(timeout) {
+  t= $14 / 1000
+  if (t > timeout) {
+    url=gensub(/([^?%]*).*/, "\\1", "g", $9) 
+    waste[url] += (t - timeout)
+    cnt[url] += 1
+    total_req += 1
+  }
 }
