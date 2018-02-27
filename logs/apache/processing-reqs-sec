@@ -1,0 +1,56 @@
+#! /usr/bin/python3
+import sys
+import re
+from datetime import datetime
+
+ip = '^\d+\.\d+\.\d+\.\d+'
+timestamp = '(\d{1,2}\/\w{3}\/\d{4}):((\d\d:){2}\d\d) [\+-]\d{4}'
+logline_str = ip + ' - - \[' + timestamp + '\] TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 "[^"]*" \d+ \d+ \d+ (\d+)'
+
+reqs = {}
+
+# group
+#   1. Date
+#   2. Time
+#   4. Duration (microsecs)
+logline = re.compile(logline_str)
+
+min_s = None
+max_s = None
+
+def read_log():
+  if len(sys.argv) > 1:
+    f = open(sys.argv[1])
+  else:
+    f = sys.stdin
+
+  for line in f:
+    parse(re.search(logline, line))
+  process()
+
+def parse(line):
+  if not line: return
+
+  start = datetime.strptime(line.group(1) + ' ' + line.group(2), '%d/%b/%Y %H:%M:%S').timestamp()
+  start = int(start)
+  # duration in secs, rounding method might be reviewed
+  duration = round(int(line.group(4)) / 1000000)
+  end = int(start + duration)
+
+  global min_s
+  if not min_s or min_s > start: min_s = start
+  
+  global max_s
+  if not max_s or max_s < end: max_s = end
+  
+  for s in range(start, end + 1):
+    if s in reqs: reqs[s] += 1
+    else: reqs[s] = 1
+
+def process():
+  for s in range(min_s, max_s + 1):
+    num_reqs = 0 if s not in reqs else reqs[s]
+    print('{}\t{}'.format(datetime.fromtimestamp(s), num_reqs))
+
+read_log()  
+
