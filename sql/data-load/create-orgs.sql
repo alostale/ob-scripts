@@ -2,7 +2,7 @@ do $$
 declare 
   base_org character varying(32) := 'B5DE96143D6642228E3B9DEC69886A47'; -- Possets
   max_orgs numeric := 600;
-  deep_tree character(1) := 'Y';
+  deep_tree character(1) := 'N';
 
   new_org_id character varying(32);
   parent character varying(32);
