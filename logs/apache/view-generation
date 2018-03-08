@@ -1,0 +1,42 @@
+#! /usr/bin/awk -f
+
+/OBUIAPP_MainLayout\/View\?viewId/ {
+  respCode=$11
+  respTime=$14
+  respSizeKB=$12/1024
+  url = $9
+
+  viewId = gensub(/.*viewId=(\w*)/,"\\1", "g", url)
+
+  id = respCode " - " viewId
+
+  cnt[id] += 1
+  time[id] += respTime
+  size[id] += respSizeKB
+
+  totalCnt[respCode] += 1
+  totalTime[respCode] += respTime
+  totalSize[respCode] += respSizeKB
+}
+
+ END {
+   OFS="\t"
+ 
+   printf("%12s %12s %10s %6s %s\n", "time", "avg time", "size", "cnt", "id")
+   for (id in cnt) {
+     # print time[id]/1000000, size[id]/1024, cnt[id], id
+      printf("%12f %12f %10.3f %6d %s\n", time[id]/1000000, time[id]/(cnt[id] * 1000000), size[id], cnt[id], id)
+   }
+
+   print "\n-------------------"
+   print "TOTALS"
+   for (code in totalCnt) {
+     print "  * " code
+     print "    count: " totalCnt[code]
+     print "    time:  " totalTime[code]/1000000 "sec"
+     print "    size:  " totalSize[code] "KB"
+   }
+ }
+
+
+
