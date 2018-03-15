@@ -1,0 +1,43 @@
+#! /usr/bin/awk -f
+
+/acquired.*after.*ms/ {
+  time = gensub(/.*acquired.*after (.*) ms/, "\\1", "g", $0) 
+  totalTime += time
+  if (max < time) {
+    max = time
+  }
+}
+
+/acquired.*of relation.*after.*ms/ {
+  time = gensub(/.*acquired.*after (.*) ms/, "\\1", "g", $0)
+  rel =  gensub(/.*of relation (.*) of database.*/, "\\1", "g", $0)
+  lockRel[rel] += time
+  print rel
+}
+
+/still waiting.*on transaction/ {
+  trx = gensub(/.*still waiting.*on transaction (.*) after.*/, "\\1", "g", $0) 
+  lockingTrx[trx] += 1
+}
+
+/of relation .* of/ {
+  rel = gensub(/.*of relation (.*) of.*/, "\\1", "g", $0) 
+  lockedRelation[rel] += 1
+}
+
+END {
+  print "Total time waiting for locks: " totalTime/1000 "sec - max: " max/1000 "sec"
+
+  print "\nTrx locking others"
+  for (t in lockingTrx) {
+    print lockingTrx[t] " - " t
+  }
+
+  qry = "select oid, relname from pg_class where oid in (0"
+  print "\nLocked relations"
+  for (r in lockedRelation) {
+    print lockedRelation[r] " - " r " - time: " lockRel[r]/1000 " sec"
+    qry = qry ", " r
+  }
+  print qry ");"
+}
