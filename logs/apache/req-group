@@ -2,11 +2,14 @@
 
 BEGIN {
   OFS="\t"
-#  print "Timestamp","Request count", "Avg request size (bytes)", "Avg response time (ms)"
+  print "Cnt","Download (MB)", "Upload (MB)", "URL"
 } 
 
 {
     url = $9
+    respSize=$12
+    reqSize=$13
+  
     if (url ~ /org.openbravo.userinterface.*skin/) {
       url = "[skin 3.0]"
     } else if (url ~ /web\/skins\/ltr/) {
@@ -22,15 +25,15 @@ BEGIN {
       # url = "[AH] " gensub(/.*_action=(.*)/,"\\1", "g", url)
     }
     url = gensub(/([^?%]*).*/,"\\1", "g",  url)
-
-    
    
     cnt[url] += 1
+    resp[url] += respSize
+    req[url] += reqSize
 }
 
 END {
   for (u in cnt) {
     reqs = cnt[u]
-    print reqs, u
+    print cnt[u], resp[u] / (1024*1024), req[u] / (1024*1024), u
   }
 }
