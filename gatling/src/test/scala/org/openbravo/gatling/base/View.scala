@@ -8,7 +8,7 @@ import io.gatling.jdbc.Predef._
 
 object View {
   def open(viewId:String) =
-  	exec(
+    exec(
       http("Open view " + viewId)
         .get("/org.openbravo.client.kernel/OBUIAPP_MainLayout/View?viewId=_" + viewId)
     )

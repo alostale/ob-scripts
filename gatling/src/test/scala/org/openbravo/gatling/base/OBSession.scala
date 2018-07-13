@@ -6,7 +6,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
 
-object Log {
+object OBSession {
   def inBackoffice(user: String, password:String) =
     exec(
       http("log in")

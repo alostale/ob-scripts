@@ -13,10 +13,10 @@ class OpenSalesOrderView extends Simulation {
 
   val scn = scenario("Open Sales Order view")
             .exec(
-           	  Log.inBackoffice("Openbravo", "openbravo"),
-           	  repeat(5) { View.open("143") },
-           	  Log.out
-           	)
+              OBSession.inBackoffice("Openbravo", "openbravo"),
+              repeat(5) { View.open("143") },
+              OBSession.out
+            )
 
   setUp(
   	scn.inject(rampUsers(4) over (5 seconds))
