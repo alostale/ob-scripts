@@ -17,8 +17,8 @@ object Log {
 
   val out = exec(
         http("log out")
-        .post("/org.openbravo.client.kernel")
-          .formParam("_action", "org.openbravo.client.application.LogOutActionHandler")
+          .post("/org.openbravo.client.kernel")
+            .formParam("_action", "org.openbravo.client.application.LogOutActionHandler")
     )
 }
 
