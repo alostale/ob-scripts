@@ -8,16 +8,17 @@ import io.gatling.jdbc.Predef._
 
 object Log {
   def inBackoffice(user: String, password:String) =
-  	exec(
+    exec(
       http("log in")
         .post("/secureApp/LoginHandler.html")
-        .formParam("user", user)
-        .formParam("password", password)
+          .formParam("user", user)
+          .formParam("password", password)
     )
 
   val out = exec(
         http("log out")
-        .post("/org.openbravo.client.kernel?_action=org.openbravo.client.application.LogOutActionHandler")
+        .post("/org.openbravo.client.kernel")
+          .formParam("_action", "org.openbravo.client.application.LogOutActionHandler")
     )
 }
 
