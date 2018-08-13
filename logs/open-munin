@@ -3,6 +3,7 @@ import sys
 import re
 from datetime import datetime
 import webbrowser
+import time
 
 date_format = '%Y-%m-%d:%H:%M'
 if len(sys.argv) != 4: 
@@ -14,8 +15,10 @@ if len(sys.argv) != 4:
 
 start = int(datetime.strptime(sys.argv[2], date_format).timestamp())
 end = int(datetime.strptime(sys.argv[3], date_format).timestamp())
-server = (sys.argv[1] if '/' in sys.argv[1] else 'us-west-1/{}'.format(sys.argv[1])) + '.cloud.openbravo.com'
+server = (sys.argv[1] if '/' in sys.argv[1] else 'us-west-1/{}'.format(sys.argv[1])) # + '.cloud.openbravo.com'
+
 url='https://mon.cloud.openbravo.com/munin/static/dynazoom.html?plugin_name={}/{}&start_epoch={}&stop_epoch={}&size_x=800&size_y=400'
+url='https://mon.cloud.openbravo.com/munin-cgi/munin-cgi-graph/{}/{}-pinpoint={},{}.png?&lower_limit=&upper_limit=&size_x=800&size_y=400'
 
 plugins = [
        'apache_accesses'
@@ -69,8 +72,61 @@ plugins = [
      , 'tomcat_volume'
 ]
 
+plugins = [
+'apache_accesses',
+'apache_processes',
+'apache_volume',
+'df',
+'df_inode',
+'jstat_cloud_classloading_time',
+'jstat_shu_classloading_time',
+'mni_jstat_cloud_classloading_time',
+'jstat_shu_classloading_loaded',
+'jstat_shu_cltime',
+'jstat_shu_classloading_unloaded',
+'jstat__gccount',
+'jstat__gccount_shu',
+'jstat__gctime',
+'jstat__gctime_shu',
+'mni_jstat__gctime',
+'jstat__heap',
+'if_eth0',
+'fw_packets',
+'netstat',
+'munin_ob_active_logins_openbravo',
+'postgres_autovacuum',
+'postgres_bgwriter',
+'postgres_cache_openbravo',
+'postgres_checkpoints',
+'postgres_connections_openbravo',
+'postgres_size_openbravo',
+'postgres_locks_openbravo',
+'postgres_querylength_openbravo',
+'postgres_scans_openbravo',
+'postgres_xlog',
+'postgres_transactions_openbravo',
+'postgres_tuples_openbravo',
+'cpu_by_process',
+'forks',
+'threads',
+'processes',
+'proc_pri',
+'vmstat',
+'entropy',
+'cpu',
+'open_files',
+'shu_open_files_tomcat',
+'open_inodes',
+'interrupts',
+'load',
+'memory',
+'swap',
+'uptime'
+]
+
 for plugin in plugins:
   actual_url = url.format(server, plugin, start, end)
   print('openinig {}'.format(actual_url))
   webbrowser.open(actual_url)
+  time.sleep(1)
 
