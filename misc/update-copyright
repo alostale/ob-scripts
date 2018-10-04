@@ -1,0 +1,64 @@
+#! /usr/bin/python3
+
+# Updates copyright year to current one
+# Usage:
+#    * Current modified and not commited files
+#        hg st -m | cut -f2 -d " " | update-copyright
+#    * Files modified in a commited changeset
+#        hg log -l1 --template "{files}\n" | update-copyright
+#    * Whatever
+#        update-copyright file1 file2 ...
+
+
+import sys
+import os
+import re
+import datetime
+
+copyright_pattern = re.compile('(Copyright \(C\) )(\d{4})(-\d{4})?')
+year = datetime.datetime.now().year
+
+def read_files():
+  if len(sys.argv)>1:
+    process_all(sys.argv[1:])
+  else:
+    process_all(sys.stdin)
+
+def process_all(filenames):
+  for filename in filenames:
+    for fn in filename.split():
+      process(fn)
+	
+def process(filename):
+  if filename.endswith("\n"): filename = filename[:-1]
+  file = os.path.abspath(filename)
+  if not os.path.isfile(file):
+    print(f'No such file {filename}')
+    return
+
+  print(f'{filename}')    
+  with open(filename) as f:
+  	txt = f.read()
+
+  d = re.search(copyright_pattern, txt)
+  if d:
+    if d.group(3):
+      orig_year = d.group(3)[1:]
+      orig_c = '{0}-{1}'.format(d.group(2), orig_year)
+      new_c = '{0}-{1}'.format(d.group(2), year)
+    else:
+      orig_year = d.group(2)
+      orig_c = f'{orig_year}'
+      new_c = '{0}-{1}'.format(orig_year, year)
+    
+    if year != int(orig_year):
+      txt = copyright_pattern.sub(f'\\1\\2-{year}', txt)
+      with open(filename, 'w') as f: f.write(txt)
+
+      print(f'  Modified: {orig_c} => {new_c}')
+    else:
+      print(f'  Not modified: {orig_c}')
+  else:
+    print('  Copyright Not found!!')
+
+read_files()
