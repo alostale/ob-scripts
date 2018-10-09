@@ -1,0 +1,24 @@
+#! /usr/bin/awk -f
+
+BEGIN {
+  OFS="\t"
+  print "# req", "time (s)", "Avg time (ms)", "download (B)", "uploaded (B)"
+} 
+
+{
+  reqSize=$13
+  respSize=$12
+  respTime=$14
+
+  cnt += 1; 
+  uploadedBytes += reqSize; 
+  time += respTime
+  downBytes += respSize
+
+
+ # print timestamp, url, $13, $14
+}
+
+END {
+  print cnt, time/1000000, time/(cnt*1000), downBytes/(1024*1024)/ uploadedBytes/(1024*1024)
+}
