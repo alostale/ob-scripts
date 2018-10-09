@@ -2,7 +2,7 @@
 
 BEGIN {
   OFS="\t"
-  print "# req", "time (s)", "Avg time (ms)", "download (B)", "uploaded (B)"
+  print "# req", "time (s)", "Avg time (ms)", "download (MB)", "uploaded (MB)"
 } 
 
 {
@@ -20,5 +20,5 @@ BEGIN {
 }
 
 END {
-  print cnt, time/1000000, time/(cnt*1000), downBytes/(1024*1024)/ uploadedBytes/(1024*1024)
+  print cnt, time/1000000, time/(cnt*1000), downBytes/(1024*1024), uploadedBytes/(1024*1024)
 }
