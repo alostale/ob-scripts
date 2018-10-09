@@ -6,6 +6,8 @@
 #        hg st -m | cut -f2 -d " " | update-copyright
 #    * Files modified in a commited changeset
 #        hg log -l1 --template "{files}\n" | update-copyright
+#    * Commited changes pending to be pushed
+#        hg out pi -q --template "{files}\n" | update-copyright
 #    * Whatever
 #        update-copyright file1 file2 ...
 
