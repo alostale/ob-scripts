@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 loops=$1
 shift
@@ -11,5 +11,5 @@ for i in $( seq 0 $loops ); do
 
   end=`date +%s%N`
   elapsed=`echo "scale=8; ($end - $start) / 1000000" | bc`
-  echo "$i\t$elapsed ms"
+  echo -e "$i\t$elapsed ms"
 done
