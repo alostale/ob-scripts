@@ -12,11 +12,16 @@ class OpenSalesOrderView extends Simulation {
   val scn = scenario("Open Sales Order view")
             .exec(
               OBSession.inBackoffice("Openbravo", "openbravo"),
-              repeat(5) { View.open("143") },
+              repeat(10) { View.open("SalesOrder") },
               OBSession.out
             )
 
+  /*
   setUp(
   	scn.inject(rampUsers(4) over (5 seconds))
   ).protocols(Env.httpProtocol)
+  */
+  setUp(
+  	scn.inject(atOnceUsers(1))
+  ).protocols(Env.httpProtocol.disableCaching)
 }
