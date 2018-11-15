@@ -8,9 +8,10 @@
 #        hg log -l1 --template "{files}\n" | update-copyright
 #    * Commited changes pending to be pushed
 #        hg out pi -q --template "{files}\n" | update-copyright
+#    * Project to merge back
+#        hg diff -r 'p2(last(merge())):.' | grep '^diff -r' | sed -E 's#^diff (-r .{12} ){2}(.*)#\2#' | update-copyright 
 #    * Whatever
 #        update-copyright file1 file2 ...
-
 
 import sys
 import os
