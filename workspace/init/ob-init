@@ -21,6 +21,9 @@ var fs = require('fs'),
     'config/Format.xml',
     '.settings/org.eclipse.wst.common.component',
     '.classpath',
+    'config/log4j2-web.xml',
+    'config/log4j2.xml',
+    'src-test/src/log4j2-test.xml',
     'src-test/.classpath'
   ];
 
@@ -39,7 +42,15 @@ Init = {
         console.log('  Generated', templates[t]);
 
         replacements = null;
-        if (template === 'config/log4j.lcf') {
+        if (template === 'config/log4j2-web.xml') {
+          replacements = [{
+            what: '<!-- <AppenderRef ref="Console"/> -->',
+            replaceWith: '<AppenderRef ref="Console"/>'
+          }, {
+            what: '<Logger name="reloadXml" level="error"/>',
+            replaceWith: '<Logger name="reloadXml" level="debug"/>'
+          }]
+        } else if (template === 'config/log4j.lcf') {
           replacements = [{
             what: 'INFO, R',
             replaceWith: 'INFO, R, C'
