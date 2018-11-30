@@ -1,0 +1,22 @@
+#! /usr/bin/awk -f
+
+/acquired.*after.*ms/ {
+  ts = gensub(/.*([0-9]{2}:[0-9]{2}):.*/, "\\1", "g", $2)
+  duration = gensub(/.*acquired.*after (.*) ms/, "\\1", "g", $0) 
+  
+  time[ts] += duration
+  cnt[ts] += 1
+
+  totalTime += duration
+  totalCnt += 1
+}
+
+END {
+  print "Total time waiting for locks: " (totalTime/60000) "min - Num of locks: " totalCnt
+
+  for (t in time) {
+    if (time[t]/60000 > 1) {
+      print t " " time[t]/60000 " - " cnt[t]
+    }
+  }
+}
