@@ -1,0 +1,24 @@
+{
+  "name": "ob-init",
+  "version": "1.0.0",
+  "description": "Openbravo workspace init script",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alostale/ob-scripts.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/alostale/ob-scripts/issues"
+  },
+  "homepage": "https://github.com/alostale/ob-scripts#readme",
+  "dependencies": {
+    "optimist": "^0.6.1",
+    "pretty-data": "^0.40.0",
+    "xml2json": "^0.11.2"
+  }
+}
