@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# add source hgr to ~/.bashrc
+
+# sets current directory to hg's root
+function hgr {
+  homeDir=$(hg root)
+  cd $homeDir
+}
