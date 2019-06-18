@@ -35,4 +35,11 @@ begin
 
     raise notice '% %', t.tablename, cnt;
   end loop;
+
+  delete from ad_process_request r
+   where not exists (select 1 from ad_process p where r.ad_process_id = p.ad_process_id);
+
+  get diagnostics cnt = row_count;    
+
+  raise notice 'ad_process_request %', cnt;
 end $$;
