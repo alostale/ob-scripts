@@ -20,4 +20,19 @@ begin
 
     raise notice '% %', t.tablename, cnt;
   end loop;
+
+  for t in (select tablename from ad_table where tablename ilike '%\_access' and tablename not in ('OBPOS_Userterminal_Access', 'MAGCON_Magento_Access', 'OBUIAPP_NAVBAR_ROLE_ACCESS', 'obuiapp_view_role_access')) loop
+    base_table := substring(t.tablename from 1 for length(t.tablename) - 7);
+    
+    pk := base_table || '_id';
+
+    qry := 'delete from ' || t.tablename  || ' t '
+        || ' where not exists (select 1 from '|| base_table || ' b where t.'|| pk || ' =  b.'|| pk ||')';
+    
+    execute qry;
+
+    get diagnostics cnt = row_count;    
+
+    raise notice '% %', t.tablename, cnt;
+  end loop;
 end $$;
