@@ -9,7 +9,7 @@ else
   cmd=$@
 fi
 
-echo "  hg $cmd"
+echo "  hg/git $cmd"
 
 dir=$(basename $(pwd))
 
@@ -19,9 +19,14 @@ fi
 
 for i in *; do
   if [ -e "$i/.hg" ]; then
-    echo ">>> $i"
+    echo ">>> hg repo: $i"
     cd $i
     eval "hg $cmd"
+    cd ..
+  elif [ -e "$i/.git" ]; then
+    echo ">>> git repo: $i"
+    cd $i
+    eval "git $cmd"
     cd ..
   fi
 done
